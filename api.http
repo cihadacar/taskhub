@@ -1,0 +1,192 @@
+# TaskHub HTTP request collection
+# IntelliJ IDEA HTTP Client / JetBrains HTTP Client syntax
+# Run requests only after the session named in the section is implemented.
+
+@baseUrl = http://localhost:8080
+@token = replace-with-user-jwt
+@adminToken = replace-with-admin-jwt
+@projectId = 1
+@taskId = 1
+@assigneeId = 1
+@tagId = 1
+@frontendOrigin = http://localhost:3000
+
+### Session 1 - Actuator discovery
+GET {{baseUrl}}/actuator
+Accept: application/json
+
+### Session 1 - Health check (expected: 200 and status UP)
+GET {{baseUrl}}/actuator/health
+Accept: application/json
+
+### Session 1 - Problem-details error contract (expected: 404)
+GET {{baseUrl}}/api/does-not-exist
+Accept: application/problem+json
+
+### Session 2 - Register a user
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "ada@example.com",
+  "username": "ada",
+  "password": "ExampleOnly!123"
+}
+
+### Session 2 - Log in
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "ada@example.com",
+  "password": "ExampleOnly!123"
+}
+
+### Session 2 - Unauthorized request check (expected: 401)
+GET {{baseUrl}}/api/projects?page=0&size=20
+Accept: application/json
+
+### Session 2 - List projects
+GET {{baseUrl}}/api/projects?page=0&size=20
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Session 2 - Create a project (expected: 201 with Location header)
+POST {{baseUrl}}/api/projects
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "TaskHub course",
+  "description": "Track the eight TaskHub delivery sessions"
+}
+
+### Session 2 - Get a project
+GET {{baseUrl}}/api/projects/{{projectId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Session 2 - Update a project
+PUT {{baseUrl}}/api/projects/{{projectId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "TaskHub delivery",
+  "description": "Track implementation and review checkpoints"
+}
+
+### Session 2 - List tasks in a project
+GET {{baseUrl}}/api/projects/{{projectId}}/tasks?page=0&size=20
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Session 2 - Filter and sort project tasks
+GET {{baseUrl}}/api/projects/{{projectId}}/tasks?page=0&size=20&status=IN_PROGRESS&assigneeId={{assigneeId}}&tagId={{tagId}}&sort=dueDate,asc
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Session 2 - Create a task in a project (expected: 201)
+POST {{baseUrl}}/api/projects/{{projectId}}/tasks
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "Bootstrap the Maven reactor",
+  "description": "Create the API, proto, and notification modules",
+  "status": "TODO",
+  "priority": "HIGH",
+  "dueDate": "2026-08-01",
+  "assigneeId": {{assigneeId}},
+  "tagIds": [{{tagId}}]
+}
+
+### Session 2 - Get a task
+GET {{baseUrl}}/api/tasks/{{taskId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Session 2 - Update a task
+PUT {{baseUrl}}/api/tasks/{{taskId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "Bootstrap the Maven reactor",
+  "description": "Build and verify all three modules",
+  "status": "IN_PROGRESS",
+  "priority": "HIGH",
+  "dueDate": "2026-08-01",
+  "assigneeId": {{assigneeId}},
+  "tagIds": [{{tagId}}]
+}
+
+### Session 2 - Invalid task validation check (expected: 400)
+POST {{baseUrl}}/api/projects/{{projectId}}/tasks
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/problem+json
+
+{
+  "title": "",
+  "status": "NOT_A_STATUS",
+  "priority": "URGENT"
+}
+
+### Session 2 - List tags
+GET {{baseUrl}}/api/tags?page=0&size=20
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Session 2 - Create a tag
+POST {{baseUrl}}/api/tags
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "backend",
+  "color": "#2563EB"
+}
+
+### Session 2 - List users as ADMIN
+GET {{baseUrl}}/api/users?page=0&size=20
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+### Session 2 - USER forbidden from admin endpoint (expected: 403)
+GET {{baseUrl}}/api/users?page=0&size=20
+Authorization: Bearer {{token}}
+Accept: application/problem+json
+
+### Session 2 - CORS preflight
+OPTIONS {{baseUrl}}/api/projects
+Origin: {{frontendOrigin}}
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: authorization,content-type
+
+### Session 2 - OpenAPI document
+GET {{baseUrl}}/v3/api-docs
+Accept: application/json
+
+### Session 2 - Swagger UI
+GET {{baseUrl}}/swagger-ui.html
+Accept: text/html
+
+### Session 2 - Delete a task (expected: 204)
+DELETE {{baseUrl}}/api/tasks/{{taskId}}
+Authorization: Bearer {{token}}
+
+### Session 2 - Delete a project (expected: 204)
+DELETE {{baseUrl}}/api/projects/{{projectId}}
+Authorization: Bearer {{token}}
+
+### Session 8 - Prometheus metrics
+GET {{baseUrl}}/actuator/prometheus
+Accept: text/plain
