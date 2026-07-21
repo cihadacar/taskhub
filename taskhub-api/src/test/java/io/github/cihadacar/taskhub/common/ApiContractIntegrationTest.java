@@ -35,6 +35,14 @@ class ApiContractIntegrationTest {
     }
 
     @Test
+    void actuatorDiscoveryExposesHealthOnly() throws Exception {
+        mockMvc.perform(get("/actuator"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._links.health.href").exists())
+                .andExpect(jsonPath("$._links.env").doesNotExist());
+    }
+
+    @Test
     void unmappedRouteReturnsCompleteProblemDetails() throws Exception {
         mockMvc.perform(get("/api/does-not-exist"))
                 .andExpect(status().isNotFound())
