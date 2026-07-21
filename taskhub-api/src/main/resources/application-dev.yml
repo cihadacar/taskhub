@@ -7,8 +7,10 @@ spring:
       - org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration
       - org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration
       - org.springframework.boot.flyway.autoconfigure.FlywayAutoConfiguration
-      - org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration
-      - org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
-      - org.springframework.boot.security.autoconfigure.web.servlet.SecurityFilterAutoConfiguration
-      - org.springframework.boot.security.autoconfigure.web.servlet.ServletWebSecurityAutoConfiguration
-      - org.springframework.boot.security.autoconfigure.actuate.web.servlet.ManagementWebSecurityAutoConfiguration
+
+taskhub:
+  security:
+    jwt-secret: ${TASKHUB_JWT_SECRET:taskhub-development-only-signing-key-32-bytes}
+    token-ttl: PT1H
+  cors:
+    allowed-origins: ${TASKHUB_CORS_ALLOWED_ORIGINS:http://localhost:3000}

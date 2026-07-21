@@ -2,6 +2,9 @@ spring:
   application:
     name: taskhub-api
 
+springdoc:
+  paths-to-match: /api/**
+
 management:
   endpoints:
     web:

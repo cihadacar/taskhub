@@ -9,6 +9,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,6 +44,7 @@ class ApiContractIntegrationTest {
     }
 
     @Test
+    @WithMockUser
     void unmappedRouteReturnsCompleteProblemDetails() throws Exception {
         mockMvc.perform(get("/api/does-not-exist"))
                 .andExpect(status().isNotFound())
@@ -55,6 +57,7 @@ class ApiContractIntegrationTest {
     }
 
     @Test
+    @WithMockUser
     void applicationExceptionReturnsResourceNotFoundProblem() throws Exception {
         mockMvc.perform(get("/test/missing-task"))
                 .andExpect(status().isNotFound())

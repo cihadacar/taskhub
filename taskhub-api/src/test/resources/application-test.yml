@@ -4,8 +4,10 @@ spring:
       - org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration
       - org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration
       - org.springframework.boot.flyway.autoconfigure.FlywayAutoConfiguration
-      - org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration
-      - org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
-      - org.springframework.boot.security.autoconfigure.web.servlet.SecurityFilterAutoConfiguration
-      - org.springframework.boot.security.autoconfigure.web.servlet.ServletWebSecurityAutoConfiguration
-      - org.springframework.boot.security.autoconfigure.actuate.web.servlet.ManagementWebSecurityAutoConfiguration
+
+taskhub:
+  security:
+    jwt-secret: taskhub-test-only-signing-key-at-least-32-bytes
+    token-ttl: PT1H
+  cors:
+    allowed-origins: http://localhost:3000
