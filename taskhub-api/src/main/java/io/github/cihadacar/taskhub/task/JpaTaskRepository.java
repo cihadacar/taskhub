@@ -12,6 +12,7 @@ import io.github.cihadacar.taskhub.project.Project;
 import io.github.cihadacar.taskhub.tag.Tag;
 import io.github.cihadacar.taskhub.user.UserAccount;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,14 +49,32 @@ class JpaTaskRepository implements TaskRepository {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Task> findByProjectId(Long projectId) {
-        return entityManager.createQuery("""
+    public TaskPage findByProjectId(Long projectId, TaskFilter filter, int page, int size) {
+        String tagJoin = filter.tagId() == null ? "" : " join t.tags filterTag";
+        String conditions = conditions(filter);
+
+        Query countQuery = entityManager.createQuery(
+                "select count(distinct t.id) from Task t" + tagJoin + conditions);
+        bind(countQuery, projectId, filter);
+        long totalElements = (long) countQuery.getSingleResult();
+
+        var idQuery = entityManager.createQuery(
+                "select distinct t.id from Task t" + tagJoin + conditions + " order by t.id", Long.class);
+        bind(idQuery, projectId, filter);
+        int offset = (int) Math.min((long) page * size, Integer.MAX_VALUE);
+        List<Long> ids = idQuery.setFirstResult(offset).setMaxResults(size).getResultList();
+        if (ids.isEmpty()) {
+            return new TaskPage(List.of(), totalElements);
+        }
+
+        List<Task> tasks = entityManager.createQuery("""
                 select distinct t from Task t
                 left join fetch t.assignee
                 left join fetch t.tags
-                where t.project.id = :projectId
+                where t.id in :ids
                 order by t.id
-                """, Task.class).setParameter("projectId", projectId).getResultList();
+                """, Task.class).setParameter("ids", ids).getResultList();
+        return new TaskPage(tasks, totalElements);
     }
 
     @Override
@@ -86,5 +105,32 @@ class JpaTaskRepository implements TaskRepository {
     private Set<Tag> tags(Set<Long> ids) {
         return ids.stream().map(id -> entityManager.getReference(Tag.class, id))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    private String conditions(TaskFilter filter) {
+        StringBuilder jpql = new StringBuilder(" where t.projectId = :projectId");
+        if (filter.status() != null) {
+            jpql.append(" and t.status = :status");
+        }
+        if (filter.assigneeId() != null) {
+            jpql.append(" and t.assigneeId = :assigneeId");
+        }
+        if (filter.tagId() != null) {
+            jpql.append(" and filterTag.id = :tagId");
+        }
+        return jpql.toString();
+    }
+
+    private void bind(Query query, Long projectId, TaskFilter filter) {
+        query.setParameter("projectId", projectId);
+        if (filter.status() != null) {
+            query.setParameter("status", filter.status());
+        }
+        if (filter.assigneeId() != null) {
+            query.setParameter("assigneeId", filter.assigneeId());
+        }
+        if (filter.tagId() != null) {
+            query.setParameter("tagId", filter.tagId());
+        }
     }
 }

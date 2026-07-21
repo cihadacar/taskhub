@@ -52,8 +52,12 @@ public class TaskController {
             @PathVariable Long projectId,
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Min(1) int size,
+            @RequestParam(required = false) TaskStatus status,
+            @RequestParam(required = false) @Min(1) Long assigneeId,
+            @RequestParam(required = false) @Min(1) Long tagId,
             @AuthenticationPrincipal Jwt jwt) {
-        return taskService.list(projectId, page, size, RequestActor.from(jwt));
+        return taskService.list(projectId, page, size, new TaskFilter(status, assigneeId, tagId),
+                RequestActor.from(jwt));
     }
 
     @GetMapping("/tasks/{id}")
