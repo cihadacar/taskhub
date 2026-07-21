@@ -12,4 +12,4 @@ set -a
 . "$env_file"
 set +a
 
-exec npx -y mcp-postgres-server
+exec npx -y mcp-postgres-server@0.1.3
