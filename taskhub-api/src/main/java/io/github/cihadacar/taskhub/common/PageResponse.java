@@ -15,7 +15,7 @@ public record PageResponse<T>(
 
     public static <T> PageResponse<T> from(List<T> all, int page, int requestedSize) {
         int size = Math.min(requestedSize, 100);
-        int from = Math.min(page * size, all.size());
+        int from = (int) Math.min((long) page * size, all.size());
         int to = Math.min(from + size, all.size());
         int totalPages = all.isEmpty() ? 0 : (all.size() + size - 1) / size;
         return new PageResponse<>(all.subList(from, to), page, size, all.size(), totalPages);

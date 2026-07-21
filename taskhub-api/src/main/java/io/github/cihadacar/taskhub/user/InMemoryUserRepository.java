@@ -41,6 +41,11 @@ class InMemoryUserRepository implements UserRepository {
     }
 
     @Override
+    public Optional<UserAccount> findById(Long id) {
+        return Optional.ofNullable(users.get(id));
+    }
+
+    @Override
     public List<UserAccount> findAll() {
         return users.values().stream().sorted(Comparator.comparing(UserAccount::id)).toList();
     }

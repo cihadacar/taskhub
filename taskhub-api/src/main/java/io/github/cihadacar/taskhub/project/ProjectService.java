@@ -57,6 +57,10 @@ public class ProjectService {
         return project;
     }
 
+    public void assertAccessible(Long id, RequestActor actor) {
+        requireAccessible(id, actor);
+    }
+
     private String normalize(String value) {
         return value == null || value.isBlank() ? null : value.strip();
     }

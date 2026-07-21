@@ -9,5 +9,7 @@ public interface UserRepository {
 
     Optional<UserAccount> findByEmail(String email);
 
+    Optional<UserAccount> findById(Long id);
+
     List<UserAccount> findAll();
 }
