@@ -1,4 +1,7 @@
 taskhub:
   notification:
+    grpc:
+      certificate-chain: ${TASKHUB_NOTIFICATION_TLS_CERTIFICATE_CHAIN}
+      private-key: ${TASKHUB_NOTIFICATION_TLS_PRIVATE_KEY}
     security:
       jwt-secret: ${TASKHUB_JWT_SECRET}

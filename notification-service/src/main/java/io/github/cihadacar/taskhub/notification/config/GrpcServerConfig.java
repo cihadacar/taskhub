@@ -1,5 +1,6 @@
 package io.github.cihadacar.taskhub.notification.config;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 
 import javax.crypto.SecretKey;
@@ -47,8 +48,11 @@ public class GrpcServerConfig {
             NotificationGrpcService service,
             AuthenticationServerInterceptor authenticationInterceptor,
             LoggingServerInterceptor loggingInterceptor) {
-        return ServerBuilder.forPort(properties.port())
-                .addService(ServerInterceptors.intercept(service, loggingInterceptor, authenticationInterceptor))
-                .build();
+        ServerBuilder<?> builder = ServerBuilder.forPort(properties.port())
+                .addService(ServerInterceptors.intercept(service, loggingInterceptor, authenticationInterceptor));
+        if (properties.tlsEnabled()) {
+            builder.useTransportSecurity(new File(properties.certificateChain()), new File(properties.privateKey()));
+        }
+        return builder.build();
     }
 }

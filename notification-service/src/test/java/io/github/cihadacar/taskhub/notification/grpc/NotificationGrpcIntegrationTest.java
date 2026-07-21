@@ -105,6 +105,15 @@ class NotificationGrpcIntegrationTest {
                         error -> assertThat(error.getStatus().getCode()).isEqualTo(Status.Code.INVALID_ARGUMENT));
     }
 
+    @Test
+    void malformedEventsAreRejectedAtTheServiceBoundary() {
+        assertThatThrownBy(() -> authenticatedBlockingStub().notifyTaskEvent(
+                NotifyTaskEventRequest.newBuilder().setEvent(TaskEvent.getDefaultInstance()).build()))
+                .isInstanceOfSatisfying(StatusRuntimeException.class,
+                        error -> assertThat(error.getStatus().getCode()).isEqualTo(Status.Code.INVALID_ARGUMENT));
+        assertThat(eventStore.findAll()).isEmpty();
+    }
+
     private NotificationServiceGrpc.NotificationServiceBlockingStub authenticatedBlockingStub() {
         return NotificationServiceGrpc.newBlockingStub(channel)
                 .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(authHeaders()));
