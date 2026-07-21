@@ -15,6 +15,10 @@
     <name>Notification Service</name>
     <description>Task-event notification service; gRPC is added in Session 3.</description>
 
+    <properties>
+        <spring-boot.run.skip>false</spring-boot.run.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
