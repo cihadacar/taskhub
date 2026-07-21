@@ -1,9 +1,11 @@
 package io.github.cihadacar.taskhub.common;
 
+import io.github.cihadacar.taskhub.persistence.PostgresTestContainer;
 import io.github.cihadacar.taskhub.common.error.ResourceNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.testcontainers.context.ImportTestcontainers;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@ImportTestcontainers(PostgresTestContainer.class)
 @Import(ApiContractIntegrationTest.TestEndpointConfiguration.class)
 class ApiContractIntegrationTest {
 

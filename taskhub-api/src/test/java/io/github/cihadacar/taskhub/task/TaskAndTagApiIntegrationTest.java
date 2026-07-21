@@ -6,11 +6,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import io.github.cihadacar.taskhub.notification.TaskEventPublisher;
 import io.github.cihadacar.taskhub.notification.TaskNotification;
 import io.github.cihadacar.taskhub.notification.TaskNotificationType;
+import io.github.cihadacar.taskhub.persistence.PostgresTestContainer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.testcontainers.context.ImportTestcontainers;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -31,6 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Import(TaskAndTagApiIntegrationTest.RecordingPublisherConfig.class)
+@ImportTestcontainers(PostgresTestContainer.class)
 class TaskAndTagApiIntegrationTest {
 
     @Autowired

@@ -3,11 +3,12 @@ package io.github.cihadacar.taskhub.task;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;
-import java.util.Set;
-
 import io.github.cihadacar.taskhub.notification.TaskNotificationType;
 import io.github.cihadacar.taskhub.security.RequestActor;
 import org.junit.jupiter.api.Test;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class TaskNotificationFactoryTest {
 
@@ -50,7 +51,14 @@ class TaskNotificationFactoryTest {
 
     private Task task(TaskStatus status, Long assigneeId) {
         Instant now = Instant.parse("2026-07-21T22:00:00Z");
-        return new Task(11L, "Build Session 3", null, status, TaskPriority.HIGH, null,
-                7L, assigneeId, Set.of(), now, now);
+        Task task = mock(Task.class);
+        when(task.id()).thenReturn(11L);
+        when(task.title()).thenReturn("Build Session 3");
+        when(task.status()).thenReturn(status);
+        when(task.projectId()).thenReturn(7L);
+        when(task.assigneeId()).thenReturn(assigneeId);
+        when(task.createdAt()).thenReturn(now);
+        when(task.updatedAt()).thenReturn(now);
+        return task;
     }
 }
