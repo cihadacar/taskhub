@@ -2,6 +2,7 @@ spring:
   application:
     name: notification-service
   main:
+    keep-alive: true
     web-application-type: none
 
 taskhub:
