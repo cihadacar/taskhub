@@ -1,0 +1,5 @@
+[mcp_servers.postgres]
+command = "sh"
+args = [".codex/run-postgres-mcp.sh"]
+cwd = ".."
+enabled = true
