@@ -3,12 +3,7 @@
 # Run requests only after the session named in the section is implemented.
 
 @baseUrl = http://localhost:8080
-@token = replace-with-user-jwt
 @adminToken = replace-with-admin-jwt
-@projectId = 1
-@taskId = 1
-@assigneeId = 1
-@tagId = 1
 @frontendOrigin = http://localhost:3000
 
 ### Session 1 - Actuator discovery
@@ -18,10 +13,6 @@ Accept: application/json
 ### Session 1 - Health check (expected: 200 and status UP)
 GET {{baseUrl}}/actuator/health
 Accept: application/json
-
-### Session 1 - Problem-details error contract (expected: 404)
-GET {{baseUrl}}/api/does-not-exist
-Accept: application/problem+json
 
 ### Session 2 - Register a user
 POST {{baseUrl}}/api/auth/register
@@ -34,6 +25,10 @@ Accept: application/json
   "password": "ExampleOnly!123"
 }
 
+> {%
+    client.global.set("assigneeId", response.body.id);
+%}
+
 ### Session 2 - Log in
 POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
@@ -43,6 +38,15 @@ Accept: application/json
   "email": "ada@example.com",
   "password": "ExampleOnly!123"
 }
+
+> {%
+    client.global.set("token", response.body.accessToken);
+%}
+
+### Session 1 contract under Session 2 security (run after login; expected: 404)
+GET {{baseUrl}}/api/does-not-exist
+Authorization: Bearer {{token}}
+Accept: application/problem+json
 
 ### Session 2 - Unauthorized request check (expected: 401)
 GET {{baseUrl}}/api/projects?page=0&size=20
@@ -63,6 +67,10 @@ Accept: application/json
   "name": "TaskHub course",
   "description": "Track the eight TaskHub delivery sessions"
 }
+
+> {%
+    client.global.set("projectId", response.body.id);
+%}
 
 ### Session 2 - Get a project
 GET {{baseUrl}}/api/projects/{{projectId}}
@@ -85,10 +93,25 @@ GET {{baseUrl}}/api/projects/{{projectId}}/tasks?page=0&size=20
 Authorization: Bearer {{token}}
 Accept: application/json
 
-### Session 2 - Filter and sort project tasks
-GET {{baseUrl}}/api/projects/{{projectId}}/tasks?page=0&size=20&status=IN_PROGRESS&assigneeId={{assigneeId}}&tagId={{tagId}}&sort=dueDate,asc
+### Session 2 - List tags
+GET {{baseUrl}}/api/tags?page=0&size=20
 Authorization: Bearer {{token}}
 Accept: application/json
+
+### Session 2 - Create a tag
+POST {{baseUrl}}/api/tags
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "backend",
+  "color": "#2563EB"
+}
+
+> {%
+    client.global.set("tagId", response.body.id);
+%}
 
 ### Session 2 - Create a task in a project (expected: 201)
 POST {{baseUrl}}/api/projects/{{projectId}}/tasks
@@ -105,6 +128,10 @@ Accept: application/json
   "assigneeId": {{assigneeId}},
   "tagIds": [{{tagId}}]
 }
+
+> {%
+    client.global.set("taskId", response.body.id);
+%}
 
 ### Session 2 - Get a task
 GET {{baseUrl}}/api/tasks/{{taskId}}
@@ -137,22 +164,6 @@ Accept: application/problem+json
   "title": "",
   "status": "NOT_A_STATUS",
   "priority": "URGENT"
-}
-
-### Session 2 - List tags
-GET {{baseUrl}}/api/tags?page=0&size=20
-Authorization: Bearer {{token}}
-Accept: application/json
-
-### Session 2 - Create a tag
-POST {{baseUrl}}/api/tags
-Authorization: Bearer {{token}}
-Content-Type: application/json
-Accept: application/json
-
-{
-  "name": "backend",
-  "color": "#2563EB"
 }
 
 ### Session 2 - List users as ADMIN

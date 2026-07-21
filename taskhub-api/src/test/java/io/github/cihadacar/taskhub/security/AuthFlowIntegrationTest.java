@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.hamcrest.Matchers.startsWith;
@@ -27,6 +28,8 @@ class AuthFlowIntegrationTest {
     void registerLoginAndAuthorizationBoundariesWorkTogether() throws Exception {
         mockMvc.perform(get("/api/projects"))
                 .andExpect(status().isUnauthorized())
+                .andExpect(content().contentType("application/problem+json"))
+                .andExpect(jsonPath("$.type").value("urn:taskhub:problem:unauthorized"))
                 .andExpect(header().string("WWW-Authenticate", startsWith("Bearer")));
 
         mockMvc.perform(post("/api/auth/register")
@@ -50,7 +53,9 @@ class AuthFlowIntegrationTest {
                 .replaceFirst(".*\\\"accessToken\\\":\\\"([^\\\"]+)\\\".*", "$1");
 
         mockMvc.perform(get("/api/users").header("Authorization", "Bearer " + token))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden())
+                .andExpect(content().contentType("application/problem+json"))
+                .andExpect(jsonPath("$.type").value("urn:taskhub:problem:forbidden"));
     }
 
     @Test
