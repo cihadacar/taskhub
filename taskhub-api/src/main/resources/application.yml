@@ -1,9 +1,6 @@
 spring:
   application:
     name: taskhub-api
-  mvc:
-    problemdetails:
-      enabled: true
 
 management:
   endpoints:
