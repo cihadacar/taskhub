@@ -107,7 +107,7 @@ All commands run from the repo root using the Maven wrapper.
 # Coverage report (JaCoCo)
 open taskhub-api/target/site/jacoco/index.html
 
-# Local infra (Postgres, Prometheus, Grafana, Loki) for manual runs
+# Local PostgreSQL (the observability stack is added in Session 8)
 docker compose up -d
 
 # Container image (multi-stage)
