@@ -3,3 +3,8 @@ spring:
     name: notification-service
   main:
     web-application-type: none
+
+taskhub:
+  notification:
+    grpc:
+      port: ${TASKHUB_NOTIFICATION_GRPC_PORT:9090}

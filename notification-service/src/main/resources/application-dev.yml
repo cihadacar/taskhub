@@ -1,0 +1,4 @@
+taskhub:
+  notification:
+    security:
+      jwt-secret: ${TASKHUB_JWT_SECRET:taskhub-development-only-signing-key-32-bytes}
