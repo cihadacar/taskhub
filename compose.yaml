@@ -1,0 +1,23 @@
+name: taskhub
+
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: ${TASKHUB_DB_NAME:-taskhub}
+      POSTGRES_USER: ${TASKHUB_DB_USERNAME:-taskhub}
+      POSTGRES_PASSWORD: ${TASKHUB_DB_PASSWORD:-taskhub-local}
+    ports:
+      - "127.0.0.1:${TASKHUB_DB_PORT:-5432}:5432"
+    volumes:
+      - taskhub-postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+
+volumes:
+  taskhub-postgres-data:
