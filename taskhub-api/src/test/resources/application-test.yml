@@ -6,6 +6,9 @@ spring:
       - org.springframework.boot.flyway.autoconfigure.FlywayAutoConfiguration
 
 taskhub:
+  notification:
+    grpc:
+      enabled: false
   security:
     jwt-secret: taskhub-test-only-signing-key-at-least-32-bytes
     token-ttl: PT1H

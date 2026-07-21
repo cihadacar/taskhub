@@ -1,9 +1,20 @@
 package io.github.cihadacar.taskhub.task;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import io.github.cihadacar.taskhub.notification.TaskEventPublisher;
+import io.github.cihadacar.taskhub.notification.TaskNotification;
+import io.github.cihadacar.taskhub.notification.TaskNotificationType;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,10 +30,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Import(TaskAndTagApiIntegrationTest.RecordingPublisherConfig.class)
 class TaskAndTagApiIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private RecordingTaskEventPublisher taskEventPublisher;
+
+    @BeforeEach
+    void clearPublishedEvents() {
+        taskEventPublisher.clear();
+    }
 
     @Test
     void ownerCanManageTaggedTasksWhileAnotherUserCannot() throws Exception {
@@ -51,6 +71,9 @@ class TaskAndTagApiIntegrationTest {
                 .andExpect(jsonPath("$.priority").value("HIGH"))
                 .andExpect(jsonPath("$.tags[0].name").value("backend"))
                 .andReturn().getResponse().getHeader("Location");
+        org.assertj.core.api.Assertions.assertThat(taskEventPublisher.events())
+                .extracting(TaskNotification::type)
+                .containsExactly(TaskNotificationType.CREATED);
 
         mockMvc.perform(get(projectLocation + "/tasks?size=500")
                         .header("Authorization", bearer(ownerToken)))
@@ -69,6 +92,9 @@ class TaskAndTagApiIntegrationTest {
                                 """.formatted(tagId)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("IN_PROGRESS"));
+        org.assertj.core.api.Assertions.assertThat(taskEventPublisher.events())
+                .extracting(TaskNotification::type)
+                .containsExactly(TaskNotificationType.CREATED, TaskNotificationType.UPDATED);
 
         mockMvc.perform(delete(taskLocation).header("Authorization", bearer(ownerToken)))
                 .andExpect(status().isNoContent());
@@ -113,5 +139,33 @@ class TaskAndTagApiIntegrationTest {
 
     private String bearer(String token) {
         return "Bearer " + token;
+    }
+
+    @TestConfiguration(proxyBeanMethods = false)
+    static class RecordingPublisherConfig {
+
+        @Bean
+        @Primary
+        RecordingTaskEventPublisher recordingTaskEventPublisher() {
+            return new RecordingTaskEventPublisher();
+        }
+    }
+
+    static final class RecordingTaskEventPublisher implements TaskEventPublisher {
+
+        private final CopyOnWriteArrayList<TaskNotification> events = new CopyOnWriteArrayList<>();
+
+        @Override
+        public void publish(TaskNotification notification) {
+            events.add(notification);
+        }
+
+        List<TaskNotification> events() {
+            return List.copyOf(events);
+        }
+
+        void clear() {
+            events.clear();
+        }
     }
 }
