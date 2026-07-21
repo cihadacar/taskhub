@@ -11,6 +11,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -34,7 +36,20 @@ class OpenApiCorsIntegrationTest {
                 .andExpect(jsonPath("$.paths['/api/projects/{projectId}/tasks']").exists())
                 .andExpect(jsonPath("$.paths['/api/tasks/{id}']").exists())
                 .andExpect(jsonPath("$.paths['/api/tags']").exists())
-                .andExpect(jsonPath("$.paths['/api/users']").exists());
+                .andExpect(jsonPath("$.paths['/api/users']").exists())
+                .andExpect(jsonPath("$.paths['/api/auth/register'].post.responses['201']").exists())
+                .andExpect(jsonPath("$.paths['/api/projects'].post.responses['201']").exists())
+                .andExpect(jsonPath("$.paths['/api/tags'].post.responses['201']").exists())
+                .andExpect(jsonPath("$.paths['/api/projects/{projectId}/tasks'].post.responses['201']").exists())
+                .andExpect(jsonPath("$.paths['/api/projects/{id}'].delete.responses['204']").exists())
+                .andExpect(jsonPath("$.paths['/api/tasks/{id}'].delete.responses['204']").exists());
+
+        mockMvc.perform(get("/swagger-ui.html"))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/swagger-ui/index.html"));
+        mockMvc.perform(get("/swagger-ui/index.html"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("swagger-ui-bundle.js")));
     }
 
     @Test

@@ -4,6 +4,7 @@ import java.net.URI;
 
 import io.github.cihadacar.taskhub.common.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +31,7 @@ public class TagController {
 
     @PostMapping
     @Operation(summary = "Create a tag")
+    @ApiResponse(responseCode = "201", description = "Tag created")
     public ResponseEntity<TagResponse> create(@Valid @RequestBody TagRequest request) {
         TagResponse response = tagService.create(request);
         return ResponseEntity.created(URI.create("/api/tags/" + response.id())).body(response);

@@ -5,6 +5,7 @@ import java.net.URI;
 import io.github.cihadacar.taskhub.common.PageResponse;
 import io.github.cihadacar.taskhub.security.RequestActor;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +37,7 @@ public class ProjectController {
 
     @PostMapping
     @Operation(summary = "Create a project")
+    @ApiResponse(responseCode = "201", description = "Project created")
     public ResponseEntity<ProjectResponse> create(
             @Valid @RequestBody ProjectRequest request, @AuthenticationPrincipal Jwt jwt) {
         ProjectResponse response = projectService.create(request, RequestActor.from(jwt));
@@ -68,6 +70,7 @@ public class ProjectController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a project")
+    @ApiResponse(responseCode = "204", description = "Project deleted")
     public ResponseEntity<Void> delete(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
         projectService.delete(id, RequestActor.from(jwt));
         return ResponseEntity.noContent().build();

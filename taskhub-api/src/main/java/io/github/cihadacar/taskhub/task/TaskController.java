@@ -5,6 +5,7 @@ import java.net.URI;
 import io.github.cihadacar.taskhub.common.PageResponse;
 import io.github.cihadacar.taskhub.security.RequestActor;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +37,7 @@ public class TaskController {
 
     @PostMapping("/projects/{projectId}/tasks")
     @Operation(summary = "Create a task in a project")
+    @ApiResponse(responseCode = "201", description = "Task created")
     public ResponseEntity<TaskResponse> create(
             @PathVariable Long projectId,
             @Valid @RequestBody TaskRequest request,
@@ -71,6 +73,7 @@ public class TaskController {
 
     @DeleteMapping("/tasks/{id}")
     @Operation(summary = "Delete a task")
+    @ApiResponse(responseCode = "204", description = "Task deleted")
     public ResponseEntity<Void> delete(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
         taskService.delete(id, RequestActor.from(jwt));
         return ResponseEntity.noContent().build();
