@@ -9,6 +9,10 @@ spring:
       - org.springframework.boot.flyway.autoconfigure.FlywayAutoConfiguration
 
 taskhub:
+  notification:
+    grpc:
+      address: localhost:9090
+      plaintext: true
   security:
     jwt-secret: ${TASKHUB_JWT_SECRET:taskhub-development-only-signing-key-32-bytes}
     token-ttl: PT1H

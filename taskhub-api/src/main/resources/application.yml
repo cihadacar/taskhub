@@ -5,6 +5,14 @@ spring:
 springdoc:
   paths-to-match: /api/**
 
+taskhub:
+  notification:
+    grpc:
+      enabled: true
+      address: notification-service:9090
+      plaintext: false
+      deadline: PT2S
+
 management:
   endpoints:
     web:

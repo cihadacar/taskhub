@@ -5,6 +5,7 @@ import java.util.Set;
 
 import io.github.cihadacar.taskhub.common.PageResponse;
 import io.github.cihadacar.taskhub.common.error.ResourceNotFoundException;
+import io.github.cihadacar.taskhub.notification.TaskEventPublisher;
 import io.github.cihadacar.taskhub.project.ProjectService;
 import io.github.cihadacar.taskhub.security.RequestActor;
 import io.github.cihadacar.taskhub.tag.TagResponse;
@@ -20,14 +21,16 @@ public class TaskService {
     private final TagService tagService;
     private final UserRepository userRepository;
     private final TaskMapper taskMapper;
+    private final TaskEventPublisher taskEventPublisher;
 
     public TaskService(TaskRepository taskRepository, ProjectService projectService, TagService tagService,
-            UserRepository userRepository, TaskMapper taskMapper) {
+            UserRepository userRepository, TaskMapper taskMapper, TaskEventPublisher taskEventPublisher) {
         this.taskRepository = taskRepository;
         this.projectService = projectService;
         this.tagService = tagService;
         this.userRepository = userRepository;
         this.taskMapper = taskMapper;
+        this.taskEventPublisher = taskEventPublisher;
     }
 
     public TaskResponse create(Long projectId, TaskRequest request, RequestActor actor) {
@@ -39,6 +42,7 @@ public class TaskService {
                 request.status() == null ? TaskStatus.TODO : request.status(),
                 request.priority() == null ? TaskPriority.MEDIUM : request.priority(), request.dueDate(), projectId,
                 request.assigneeId(), tagIds);
+        taskEventPublisher.publish(TaskNotificationFactory.created(task, actor));
         return taskMapper.toResponse(task, tags);
     }
 
@@ -61,6 +65,7 @@ public class TaskService {
                 request.status() == null ? existing.status() : request.status(),
                 request.priority() == null ? existing.priority() : request.priority(), request.dueDate(),
                 request.assigneeId(), tagIds);
+        taskEventPublisher.publish(TaskNotificationFactory.updated(existing, task, actor));
         return taskMapper.toResponse(task, tags);
     }
 

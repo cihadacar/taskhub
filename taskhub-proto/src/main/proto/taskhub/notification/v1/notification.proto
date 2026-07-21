@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package taskhub.notification.v1;
+
+option java_multiple_files = true;
+option java_package = "io.github.cihadacar.taskhub.proto.notification.v1";
+option java_outer_classname = "NotificationProto";
+
+import "google/protobuf/timestamp.proto";
+
+service NotificationService {
+  rpc NotifyTaskEvent(NotifyTaskEventRequest) returns (NotifyTaskEventResponse);
+  rpc SubscribeTaskEvents(SubscribeTaskEventsRequest) returns (stream TaskEvent);
+}
+
+message NotifyTaskEventRequest {
+  TaskEvent event = 1;
+}
+
+message NotifyTaskEventResponse {
+  string event_id = 1;
+  bool accepted = 2;
+}
+
+message SubscribeTaskEventsRequest {
+  repeated int64 project_ids = 1;
+}
+
+message TaskEvent {
+  string event_id = 1;
+  int64 task_id = 2;
+  int64 project_id = 3;
+  int64 actor_id = 4;
+  google.protobuf.Timestamp occurred_at = 5;
+
+  oneof payload {
+    TaskCreated task_created = 10;
+    TaskUpdated task_updated = 11;
+    TaskAssigned task_assigned = 12;
+    TaskCompleted task_completed = 13;
+  }
+}
+
+message TaskCreated {
+  string title = 1;
+  optional int64 assignee_id = 2;
+}
+
+message TaskUpdated {
+  string title = 1;
+  string status = 2;
+  optional int64 assignee_id = 3;
+}
+
+message TaskAssigned {
+  int64 assignee_id = 1;
+}
+
+message TaskCompleted {
+  optional int64 assignee_id = 1;
+}

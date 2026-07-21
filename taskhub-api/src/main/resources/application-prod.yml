@@ -13,6 +13,10 @@ spring:
     enabled: true
 
 taskhub:
+  notification:
+    grpc:
+      address: ${TASKHUB_NOTIFICATION_GRPC_ADDRESS}
+      plaintext: false
   security:
     jwt-secret: ${TASKHUB_JWT_SECRET}
     token-ttl: ${TASKHUB_JWT_TTL:PT1H}
