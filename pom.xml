@@ -53,7 +53,6 @@
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>${jacoco.version}</version>
                     <configuration>
-                        <append>true</append>
                         <excludes>
                             <exclude>**/config/**</exclude>
                             <exclude>**/*Application*</exclude>
@@ -65,6 +64,37 @@
                             <goals>
                                 <goal>prepare-agent</goal>
                             </goals>
+                            <configuration>
+                                <append>false</append>
+                                <destFile>${project.build.directory}/jacoco-unit.exec</destFile>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>prepare-integration-coverage-agent</id>
+                            <goals>
+                                <goal>prepare-agent-integration</goal>
+                            </goals>
+                            <configuration>
+                                <append>false</append>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>merge-coverage-data</id>
+                            <phase>post-integration-test</phase>
+                            <goals>
+                                <goal>merge</goal>
+                            </goals>
+                            <configuration>
+                                <fileSets>
+                                    <fileSet>
+                                        <directory>${project.build.directory}</directory>
+                                        <includes>
+                                            <include>jacoco-unit.exec</include>
+                                            <include>jacoco-it.exec</include>
+                                        </includes>
+                                    </fileSet>
+                                </fileSets>
+                            </configuration>
                         </execution>
                         <execution>
                             <id>report-and-check-coverage</id>
