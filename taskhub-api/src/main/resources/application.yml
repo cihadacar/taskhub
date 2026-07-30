@@ -1,6 +1,13 @@
 spring:
   application:
     name: taskhub-api
+  flyway:
+    enabled: true
+    validate-migration-naming: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
 
 springdoc:
   paths-to-match: /api/**

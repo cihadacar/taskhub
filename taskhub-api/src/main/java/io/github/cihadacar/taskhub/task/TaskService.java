@@ -46,10 +46,13 @@ public class TaskService {
         return taskMapper.toResponse(task, tags);
     }
 
-    public PageResponse<TaskResponse> list(Long projectId, int page, int size, RequestActor actor) {
+    public PageResponse<TaskResponse> list(Long projectId, int page, int size, TaskFilter filter,
+            RequestActor actor) {
         projectService.assertAccessible(projectId, actor);
-        List<TaskResponse> tasks = taskRepository.findByProjectId(projectId).stream().map(this::toResponse).toList();
-        return PageResponse.from(tasks, page, size);
+        int boundedSize = Math.min(size, 100);
+        TaskPage taskPage = taskRepository.findByProjectId(projectId, filter, page, boundedSize);
+        List<TaskResponse> tasks = taskPage.content().stream().map(taskMapper::toResponse).toList();
+        return PageResponse.of(tasks, page, boundedSize, taskPage.totalElements());
     }
 
     public TaskResponse get(Long id, RequestActor actor) {

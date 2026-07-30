@@ -2,9 +2,11 @@ package io.github.cihadacar.taskhub.security;
 
 import java.time.Instant;
 
+import io.github.cihadacar.taskhub.persistence.PostgresTestContainer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.testcontainers.context.ImportTestcontainers;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
@@ -26,6 +28,7 @@ import static org.hamcrest.Matchers.startsWith;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@ImportTestcontainers(PostgresTestContainer.class)
 class AuthFlowIntegrationTest {
 
     @Autowired
